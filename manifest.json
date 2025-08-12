@@ -1,0 +1,23 @@
+{
+  "name": "TrackFit AI - Workout Monitoring",
+  "short_name": "TrackFit AI",
+  "description": "AI-Based Workout Monitoring and Lifestyle Analyzer",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#00BFFF",
+  "theme_color": "#00BFFF",
+  "orientation": "portrait-primary",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMwMEJGRkYiLz48cGF0aCBkPSJNOTYgNDhMNjQgODBMOTYgMTEyTDEyOCA4MEw5NiA0OFoiIGZpbGw9IndoaXRlIi8+PC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyNTYiIGZpbGw9IiMwMEJGRkYiLz48cGF0aCBkPSJNMjU2IDEyOEwxNzAgMjEzTDI1NiAyOThMMzQyIDIxM0wyNTYgMTI4WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+} 

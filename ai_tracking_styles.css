@@ -1,0 +1,301 @@
+/* AI Exercise Tracking Styles */
+.ai-tracking-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.ai-tracking-section h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.ai-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.ai-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    min-width: 150px;
+}
+
+.ai-btn:not(:disabled) {
+    background: linear-gradient(45deg, #00BFFF, #1E90FF);
+    color: white;
+}
+
+.ai-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.ai-btn.danger {
+    background: linear-gradient(45deg, #ff6b6b, #ff5252);
+}
+
+.ai-btn.success {
+    background: linear-gradient(45deg, #51cf66, #40c057);
+}
+
+.ai-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.ai-interface {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+}
+
+.video-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#exerciseVideo {
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+#exerciseCanvas {
+    display: none; /* Hidden, used for processing */
+}
+
+.exercise-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    background: rgba(255,255,255,0.2);
+    padding: 20px;
+    border-radius: 15px;
+    min-width: 120px;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.3);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00BFFF;
+}
+
+.stage-indicator {
+    transition: all 0.3s ease;
+}
+
+.stage-indicator.up {
+    color: #51cf66 !important;
+}
+
+.stage-indicator.down {
+    color: #ff6b6b !important;
+}
+
+.stage-indicator.ready {
+    color: #ffd43b !important;
+}
+
+.rep-celebration {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, #ff6b6b, #ffd43b);
+    padding: 20px 40px;
+    border-radius: 50px;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 1000;
+    opacity: 0;
+    scale: 0.5;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.rep-celebration.animate {
+    opacity: 1;
+    scale: 1;
+    animation: celebrationPulse 1s ease-in-out;
+}
+
+@keyframes celebrationPulse {
+    0% { 
+        opacity: 0;
+        scale: 0.5;
+    }
+    50% { 
+        opacity: 1;
+        scale: 1.2;
+    }
+    100% { 
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .ai-tracking-section {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .ai-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .ai-btn {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .exercise-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .stat-item {
+        margin: 0 auto;
+    }
+    
+    #exerciseVideo {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .rep-celebration {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Animation for smooth transitions */
+.ai-interface.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.ai-interface:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Pose overlay styles */
+.pose-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Exercise type badges */
+.exercise-badge {
+    display: inline-block;
+    background: linear-gradient(45deg, #00BFFF, #1E90FF);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin: 5px;
+    font-weight: 600;
+}
+
+.exercise-badge.active {
+    background: linear-gradient(45deg, #51cf66, #40c057);
+}
+
+/* Loading animation */
+.loading-spinner {
+    border: 4px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top: 4px solid #00BFFF;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+.notification.success {
+    background: linear-gradient(45deg, #51cf66, #40c057);
+}
+
+.notification.error {
+    background: linear-gradient(45deg, #ff6b6b, #ff5252);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+} 

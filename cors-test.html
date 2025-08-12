@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Test - TrackFit API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .toggle-btn { background: #28a745; }
+        .toggle-btn:hover { background: #218838; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🧪 CORS Test - TrackFit AI API</h1>
+    
+    <div class="test-section">
+        <h3>🌐 API Configuration</h3>
+        <p><strong>Current API:</strong> <span id="current-api">Local (localhost:5000)</span></p>
+        <button onclick="toggleAPI()" class="toggle-btn">Switch to Hosted API</button>
+        <p><em>Test with local API first to verify CORS fixes, then switch to hosted API</em></p>
+    </div>
+    
+    <div class="test-section">
+        <h3>1. Test API Status (No CORS issues expected)</h3>
+        <button onclick="testStatus()">Test API Status</button>
+        <div id="status-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Test CORS Endpoint</h3>
+        <button onclick="testCors()">Test CORS</button>
+        <div id="cors-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Test Exercise Start (CORS test)</h3>
+        <button onclick="testStartExercise('biceps')">Start Biceps</button>
+        <button onclick="testStartExercise('squats')">Start Squats</button>
+        <div id="start-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Test from Different Origin</h3>
+        <p>This simulates the hosted environment:</p>
+        <button onclick="testFromHostedOrigin()">Test from Hosted Origin</button>
+        <div id="hosted-result" class="result"></div>
+    </div>
+
+    <script>
+        // Test with LOCAL API first to verify CORS fixes
+        let API_BASE_URL = 'http://localhost:5000';
+        let isLocalAPI = true;
+        
+        function toggleAPI() {
+            if (isLocalAPI) {
+                API_BASE_URL = 'https://trackfit-ai-api-896812555309.us-central1.run.app';
+                isLocalAPI = false;
+                document.getElementById('current-api').textContent = 'Hosted (Google Cloud Run)';
+                document.querySelector('.toggle-btn').textContent = 'Switch to Local API';
+                document.querySelector('.toggle-btn').style.background = '#dc3545';
+            } else {
+                API_BASE_URL = 'http://localhost:5000';
+                isLocalAPI = true;
+                document.getElementById('current-api').textContent = 'Local (localhost:5000)';
+                document.querySelector('.toggle-btn').textContent = 'Switch to Hosted API';
+                document.querySelector('.toggle-btn').style.background = '#28a745';
+            }
+            console.log('Switched to:', API_BASE_URL);
+        }
+        
+        async function testStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/`);
+                const data = await response.json();
+                document.getElementById('status-result').innerHTML = 
+                    `<div class="success"><strong>✅ API Status:</strong><br>${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('status-result').innerHTML = 
+                    `<div class="error"><strong>❌ Error:</strong><br>${error.message}</div>`;
+            }
+        }
+        
+        async function testCors() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/test-cors`);
+                const data = await response.json();
+                document.getElementById('cors-result').innerHTML = 
+                    `<div class="success"><strong>✅ CORS Test:</strong><br>${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('cors-result').innerHTML = 
+                    `<div class="error"><strong>❌ Error:</strong><br>${error.message}</div>`;
+            }
+        }
+        
+        async function testStartExercise(exercise) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/start-exercise`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ exercise_type: exercise })
+                });
+                const data = await response.json();
+                document.getElementById('start-result').innerHTML = 
+                    `<div class="success"><strong>✅ Started ${exercise}:</strong><br>${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('start-result').innerHTML = 
+                    `<div class="error"><strong>❌ Error:</strong><br>${error.message}</div>`;
+            }
+        }
+        
+        async function testFromHostedOrigin() {
+            try {
+                // Simulate request from hosted origin
+                const response = await fetch(`${API_BASE_URL}/test-cors`, {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Origin': 'https://trackfit-ai-web.web.app'
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('hosted-result').innerHTML = 
+                    `<div class="success"><strong>✅ Hosted Origin Test:</strong><br>${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('hosted-result').innerHTML = 
+                    `<div class="error"><strong>❌ Error:</strong><br>${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

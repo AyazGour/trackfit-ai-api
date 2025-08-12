@@ -1,0 +1,62 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    
+    function isValidImageFile() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidFileSize() {
+      return request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+    
+    // Profile pictures - users can upload/read their own profile pictures
+    match /profile-pictures/{userId} {
+      allow read, write: if isAuthenticated() 
+                         && isOwner(userId) 
+                         && isValidImageFile() 
+                         && isValidFileSize();
+    }
+    
+    // Food images - users can upload/read their own food images
+    match /food-images/{userId}/{fileName} {
+      allow read, write: if isAuthenticated() 
+                         && isOwner(userId) 
+                         && isValidImageFile() 
+                         && isValidFileSize();
+    }
+    
+    // Exercise images - read-only for all authenticated users, write for admins
+    match /exercise-images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Product images - read-only for all authenticated users
+    match /product-images/{fileName} {
+      allow read: if true; // Public read access for product images
+      allow write: if isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Trainer images - read-only for all authenticated users
+    match /trainer-images/{fileName} {
+      allow read: if true; // Public read access for trainer images
+      allow write: if isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Workout session videos/images - users can upload/read their own content
+    match /workout-media/{userId}/{fileName} {
+      allow read, write: if isAuthenticated() 
+                         && isOwner(userId) 
+                         && isValidFileSize();
+    }
+  }
+} 

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00BFFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>TrackFit AI - AI-Based Workout Monitoring</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai_tracking_styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOTAiIGN5PSI5MCIgcj0iOTAiIGZpbGw9IiMwMEJGRkYiLz48cGF0aCBkPSJNOTAgNDVMNjAgNzVMOTAgMTA1TDEyMCA3NUw5MCA0NVoiIGZpbGw9IndoaXRlIi8+PC9zdmc+">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, getDoc, addDoc, getDocs, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVPuhe5rSc6Iud3cxEWBJwSaf7WJCRYHY",
+            authDomain: "trackfit-ai-web.firebaseapp.com",
+            projectId: "trackfit-ai-web",
+            storageBucket: "trackfit-ai-web.firebasestorage.app",
+            messagingSenderId: "896812555309",
+            appId: "1:896812555309:web:f3101f9d910e9295ec2ca4",
+            measurementId: "G-W6MC72KWW1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const analytics = getAnalytics(app);
+
+        // Make Firebase available globally
+        window.firebase = {
+            auth,
+            db,
+            storage,
+            analytics,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            addDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            limit,
+            serverTimestamp,
+            ref,
+            uploadBytes,
+            getDownloadURL
+        };
+    </script>
+</head>
+<body>
+    <!-- Landing Page with Animation -->
+    <div id="landingPage" class="landing-page">
+        <div class="landing-container">
+            <div class="logo-animation">
+                <div class="logo-container">
+                    <img src="logo.png" alt="TrackFit AI Logo" class="app-logo">
+                </div>
+                <h1 class="app-title">TrackFit AI</h1>
+                <p class="app-subtitle">AI-Based Workout Monitoring & Lifestyle Analyzer</p>
+            </div>
+            <button id="getStartedBtn" class="get-started-btn">Get Started</button>
+        </div>
+    </div>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="auth-modal hidden">
+        <div class="auth-container">
+            <button class="close-btn" id="closeAuthModal">&times;</button>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <form>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Login</button>
+                </form>
+                <p>Don't have an account? <span id="showRegister" class="link">Sign up</span></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <form>
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Full Name" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Register</button>
+                </form>
+                <p>Already have an account? <span id="showLogin" class="link">Login</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <img src="logo.png" alt="TrackFit AI Logo" class="nav-logo">
+                <span>TrackFit AI</span>
+            </div>
+            <div class="nav-links">
+                <a href="#exercises" class="nav-link active" data-tab="exercises">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Exercises</span>
+                </a>
+                <a href="#analytics" class="nav-link" data-tab="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#nutrition" class="nav-link" data-tab="nutrition">
+                    <i class="fas fa-apple-alt"></i>
+                    <span>Nutrition</span>
+                </a>
+                <a href="#store" class="nav-link" data-tab="store">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Store</span>
+                </a>
+                <a href="#trainers" class="nav-link" data-tab="trainers">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Trainers</span>
+                </a>
+                <a href="#profile" class="nav-link" data-tab="profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </nav>
+
+        <!-- Page Content -->
+        <main class="main-content">
+            <!-- Exercises Page -->
+            <div id="exercisesPage" class="page active">
+                <div class="page-header">
+                    <h1>Exercise Categories</h1>
+                    <p>Choose your workout category and difficulty level</p>
+                </div>
+                
+                <div class="difficulty-selector">
+                    <button class="difficulty-btn active" data-level="beginner">Beginner</button>
+                    <button class="difficulty-btn" data-level="intermediate">Intermediate</button>
+                    <button class="difficulty-btn" data-level="professional">Professional</button>
+                </div>
+
+                <!-- AI Exercise Tracking Section -->
+                <div class="ai-tracking-section">
+                    <h3>🤖 AI Exercise Tracking</h3>
+                    <p>Enable real-time AI-powered exercise tracking with automatic rep counting!</p>
+                    <div class="ai-controls">
+                        <button id="enableAITracking" class="ai-btn">Enable AI Tracking</button>
+                        <button id="startAIWorkout" class="ai-btn" disabled>Start AI Workout</button>
+                    </div>
+                    
+                    <div id="aiTrackingInterface" class="ai-interface hidden">
+                        <div class="video-container">
+                            <video id="exerciseVideo" autoplay muted></video>
+                            <canvas id="exerciseCanvas" width="640" height="480"></canvas>
+                        </div>
+                        
+                        <div class="exercise-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Reps</span>
+                                <span id="repCounter" class="stat-value">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Stage</span>
+                                <span id="stageIndicator" class="stat-value">Ready</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Angle</span>
+                                <span id="angleDisplay" class="stat-value">0°</span>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-controls">
+                            <button id="stopAITracking" class="ai-btn danger">Stop Tracking</button>
+                            <button id="resetCounter" class="ai-btn">Reset Counter</button>
+                            <button id="saveWorkout" class="ai-btn success">Save Workout</button>
+                        </div>
+                    </div>
+                    
+                    <div id="repCelebration" class="rep-celebration">
+                        <div class="celebration-text">Great Rep! 🎉</div>
+                    </div>
+                </div>
+
+                <div class="exercise-categories">
+                    <div class="category-card" data-category="arms">
+                        <div class="category-icon arms-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-dumbbell"></i>
+                                <div class="pulse-ring"></div>
+                            </div>
+                        </div>
+                        <h3>Arms</h3>
+                        <p>Biceps and forearm exercises</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="triceps">
+                        <div class="category-icon triceps-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-fist-raised"></i>
+                                <div class="flex-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Triceps</h3>
+                        <p>Triceps strengthening workouts</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="shoulders">
+                        <div class="category-icon shoulders-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-arrows-alt"></i>
+                                <div class="rotate-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Shoulders</h3>
+                        <p>Shoulder mobility and strength</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="chest">
+                        <div class="category-icon chest-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-expand"></i>
+                                <div class="expand-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Chest</h3>
+                        <p>Chest development exercises</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="back">
+                        <div class="category-icon back-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-male"></i>
+                                <div class="posture-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Back</h3>
+                        <p>Back strengthening workouts</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="abs">
+                        <div class="category-icon abs-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-circle-notch"></i>
+                                <div class="crunch-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Abs</h3>
+                        <p>Core strengthening exercises</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="lats">
+                        <div class="category-icon lats-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                                <div class="pulldown-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Lats</h3>
+                        <p>Latissimus dorsi workouts</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="thighs">
+                        <div class="category-icon thighs-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-running"></i>
+                                <div class="squat-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Thighs</h3>
+                        <p>Quadriceps and hamstring exercises</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="glutes">
+                        <div class="category-icon glutes-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-mountain"></i>
+                                <div class="bridge-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Glutes</h3>
+                        <p>Glute strengthening workouts</p>
+                    </div>
+                    
+                    <div class="category-card" data-category="calves">
+                        <div class="category-icon calves-animation">
+                            <div class="animated-icon">
+                                <i class="fas fa-shoe-prints"></i>
+                                <div class="bounce-animation"></div>
+                            </div>
+                        </div>
+                        <h3>Calves</h3>
+                        <p>Calf muscle development</p>
+                    </div>
+                </div>
+
+                <!-- Exercise Details Modal -->
+                <div id="exerciseModal" class="exercise-modal hidden">
+                    <div class="exercise-modal-content">
+                        <button class="close-btn" id="closeExerciseModal">&times;</button>
+                        <div id="exerciseModalTitle" class="exercise-modal-title"></div>
+                        <div id="exerciseList" class="exercise-list">
+                            <!-- Exercise list will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="page">
+                <div class="page-header">
+                    <h1>Analytics & Progress</h1>
+                    <p>Track your fitness journey and health metrics</p>
+                </div>
+                
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>BMI Calculator</h3>
+                        <div class="bmi-calculator">
+                            <div class="input-row">
+                                <input type="number" id="heightInput" placeholder="Height (cm)">
+                                <input type="number" id="weightInput" placeholder="Weight (kg)">
+                            </div>
+                            <button id="calculateBMI" class="calc-btn">Calculate BMI</button>
+                            <div id="bmiResult" class="bmi-result"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <h3>Workout Statistics</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">45</span>
+                                <span class="stat-label">Workouts This Month</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">1,250</span>
+                                <span class="stat-label">Calories Burned</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">15.5</span>
+                                <span class="stat-label">Hours Exercised</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card full-width">
+                        <h3>Workout History</h3>
+                        <div class="workout-history">
+                            <div class="history-item">
+                                <div class="history-date">Today</div>
+                                <div class="history-workout">Chest & Triceps</div>
+                                <div class="history-duration">45 min</div>
+                                <div class="history-calories">320 cal</div>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-date">Yesterday</div>
+                                <div class="history-workout">Back & Biceps</div>
+                                <div class="history-duration">50 min</div>
+                                <div class="history-calories">380 cal</div>
+                            </div>
+                            <div class="history-item">
+                                <div class="history-date">2 days ago</div>
+                                <div class="history-workout">Legs & Glutes</div>
+                                <div class="history-duration">60 min</div>
+                                <div class="history-calories">450 cal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nutrition Page -->
+            <div id="nutritionPage" class="page">
+                <div class="nutrition-chat-container">
+                    <div class="chat-header">
+                        <div class="ai-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-info">
+                            <h2>NutriBot AI</h2>
+                            <p class="status">🟢 Online - Ready to help with your nutrition!</p>
+                        </div>
+                        <button class="chat-options-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>👋 Hello! I'm your AI Nutrition Assistant. I can help you with:</p>
+                                <div class="quick-actions">
+                                    <button class="quick-action-btn" data-action="analyze">📸 Analyze Food Photos</button>
+                                    <button class="quick-action-btn" data-action="plan">🍽️ Meal Planning</button>
+                                    <button class="quick-action-btn" data-action="calories">🔥 Calorie Tracking</button>
+                                    <button class="quick-action-btn" data-action="tips">💡 Nutrition Tips</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <button class="attachment-btn" id="photoBtn">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <input type="file" id="foodImageInput" accept="image/*" hidden>
+                            <input type="text" id="chatInput" placeholder="Ask me anything about nutrition..." maxlength="500">
+                            <button class="send-btn" id="sendBtn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span>NutriBot is typing...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Page -->
+            <div id="storePage" class="page">
+                <div class="page-header">
+                    <h1>Fitness Store</h1>
+                    <p>Premium gym equipment and fitness accessories</p>
+                </div>
+                
+                <div class="store-filters">
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="equipment">Equipment</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="supplements">Supplements</option>
+                        <option value="apparel">Apparel</option>
+                    </select>
+                    <div class="search-bar">
+                        <input type="text" id="productSearch" placeholder="Search products...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </button>
+                </div>
+                
+                <div class="products-grid" id="productsGrid">
+                    <!-- Products will be populated dynamically -->
+                </div>
+                
+                <!-- Shopping Cart Modal -->
+                <div id="cartModal" class="cart-modal hidden">
+                    <div class="cart-content">
+                        <div class="cart-header">
+                            <h3>Shopping Cart</h3>
+                            <button class="close-btn" id="closeCart">&times;</button>
+                        </div>
+                        <div id="cartItems" class="cart-items">
+                            <!-- Cart items will be populated dynamically -->
+                        </div>
+                        <div class="cart-footer">
+                            <div class="cart-total">
+                                <span>Total: $<span id="cartTotal">0.00</span></span>
+                            </div>
+                            <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trainers Page -->
+            <div id="trainersPage" class="page">
+                <div class="page-header">
+                    <h1>Personal Trainers</h1>
+                    <p>Connect with certified fitness professionals</p>
+                </div>
+                
+                <div class="trainers-filters">
+                    <select id="specialtyFilter">
+                        <option value="all">All Specialties</option>
+                        <option value="strength">Strength Training</option>
+                        <option value="cardio">Cardio</option>
+                        <option value="yoga">Yoga</option>
+                        <option value="crossfit">CrossFit</option>
+                        <option value="bodybuilding">Bodybuilding</option>
+                    </select>
+                    <select id="ratingFilter">
+                        <option value="all">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                    </select>
+                </div>
+                
+                <div class="trainers-grid" id="trainersGrid">
+                    <!-- Trainers will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="page">
+                <div class="page-header">
+                    <h1>My Profile</h1>
+                    <p>Manage your account and preferences</p>
+                </div>
+                
+                <div class="profile-container">
+                    <div class="profile-sidebar">
+                        <div class="profile-avatar">
+                            <img src="https://via.placeholder.com/150" alt="Profile" id="profileImage">
+                            <button class="change-photo-btn">Change Photo</button>
+                        </div>
+                        <nav class="profile-nav">
+                            <a href="#" class="profile-nav-link active" data-section="personal">Personal Info</a>
+                            <a href="#" class="profile-nav-link" data-section="fitness">Fitness Goals</a>
+                            <a href="#" class="profile-nav-link" data-section="orders">My Orders</a>
+                            <a href="#" class="profile-nav-link" data-section="settings">Settings</a>
+                        </nav>
+                    </div>
+                    
+                    <div class="profile-content">
+                        <div id="personalSection" class="profile-section active">
+                            <h3>Personal Information</h3>
+                            <form class="profile-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Full Name</label>
+                                        <input type="text" value="John Doe">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" value="john.doe@email.com">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Phone</label>
+                                        <input type="tel" value="+1 234 567 8900">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date of Birth</label>
+                                        <input type="date" value="1990-01-01">
+                                    </div>
+                                </div>
+                                <button type="submit" class="save-btn">Save Changes</button>
+                            </form>
+                        </div>
+                        
+                        <div id="fitnessSection" class="profile-section">
+                            <h3>Fitness Goals</h3>
+                            <form class="profile-form">
+                                <div class="form-group">
+                                    <label>Primary Goal</label>
+                                    <select>
+                                        <option>Weight Loss</option>
+                                        <option>Muscle Gain</option>
+                                        <option>Strength Training</option>
+                                        <option>General Fitness</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Current Weight (kg)</label>
+                                        <input type="number" value="70">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Target Weight (kg)</label>
+                                        <input type="number" value="65">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Activity Level</label>
+                                    <select>
+                                        <option>Sedentary</option>
+                                        <option>Lightly Active</option>
+                                        <option>Moderately Active</option>
+                                        <option>Very Active</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="save-btn">Update Goals</button>
+                            </form>
+                        </div>
+                        
+                        <div id="ordersSection" class="profile-section">
+                            <h3>Order History</h3>
+                            <div class="orders-list">
+                                <div class="order-item">
+                                    <div class="order-info">
+                                        <span class="order-id">#ORD-001</span>
+                                        <span class="order-date">March 15, 2024</span>
+                                        <span class="order-status delivered">Delivered</span>
+                                    </div>
+                                    <div class="order-total">$89.99</div>
+                                </div>
+                                <div class="order-item">
+                                    <div class="order-info">
+                                        <span class="order-id">#ORD-002</span>
+                                        <span class="order-date">March 10, 2024</span>
+                                        <span class="order-status shipped">Shipped</span>
+                                    </div>
+                                    <div class="order-total">$156.50</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="settingsSection" class="profile-section">
+                            <h3>Settings</h3>
+                            <div class="settings-list">
+                                <div class="setting-item">
+                                    <span>Email Notifications</span>
+                                    <label class="switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Push Notifications</span>
+                                    <label class="switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Dark Mode</span>
+                                    <label class="switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="exercises-data.js"></script>
+    <script src="products-data.js"></script>
+    <script src="trainers-data.js">    </script>
+    <script src="ai_api_config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Additional initialization for AI tracking
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('AI Exercise Tracking initialized');
+            
+            // Add click handler to first category card to show example
+            const firstCard = document.querySelector('.category-card');
+            if (firstCard) {
+                firstCard.click();
+            }
+        });
+    </script>
+</body>
+</html> 

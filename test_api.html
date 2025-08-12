@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test TrackFit AI API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test TrackFit AI API</h1>
+    
+    <div class="test-section">
+        <h3>1. Test API Status</h3>
+        <button onclick="testStatus()">Test API Status</button>
+        <div id="status-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Test Exercise Start</h3>
+        <button onclick="testStartExercise('biceps')">Start Biceps</button>
+        <button onclick="testStartExercise('squats')">Start Squats</button>
+        <button onclick="testStartExercise('pushups')">Start Pushups</button>
+        <div id="start-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Test Stats</h3>
+        <button onclick="testGetStats()">Get Stats</button>
+        <div id="stats-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Reset Counter</h3>
+        <button onclick="testReset()">Reset Counter</button>
+        <div id="reset-result" class="result"></div>
+    </div>
+
+    <script>
+        // Update this URL with your deployed API URL
+        const API_BASE_URL = 'https://trackfit-ai-api.onrender.com';
+        
+        async function testStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/`);
+                const data = await response.json();
+                document.getElementById('status-result').innerHTML = 
+                    `<strong>✅ API Status:</strong><br>${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('status-result').innerHTML = 
+                    `<strong>❌ Error:</strong><br>${error.message}`;
+            }
+        }
+        
+        async function testStartExercise(exercise) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/start-exercise`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ exercise_type: exercise })
+                });
+                const data = await response.json();
+                document.getElementById('start-result').innerHTML = 
+                    `<strong>✅ Started ${exercise}:</strong><br>${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('start-result').innerHTML = 
+                    `<strong>❌ Error:</strong><br>${error.message}`;
+            }
+        }
+        
+        async function testGetStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/get-stats`);
+                const data = await response.json();
+                document.getElementById('stats-result').innerHTML = 
+                    `<strong>✅ Stats:</strong><br>${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('stats-result').innerHTML = 
+                    `<strong>❌ Error:</strong><br>${error.message}`;
+            }
+        }
+        
+        async function testReset() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/reset-counter`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                document.getElementById('reset-result').innerHTML = 
+                    `<strong>✅ Reset:</strong><br>${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('reset-result').innerHTML = 
+                    `<strong>❌ Error:</strong><br>${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -9,7 +9,31 @@ from PIL import Image
 import os
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS properly for hosted environment
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://trackfit-ai-web.web.app",
+            "https://trackfit-ai-web.firebaseapp.com", 
+            "http://localhost:8000",
+            "http://localhost:5000",
+            "http://127.0.0.1:8000",
+            "http://127.0.0.1:5000"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
+
+# Handle preflight OPTIONS requests - Flask-CORS will handle the headers automatically
+@app.route('/api/start-exercise', methods=['OPTIONS'])
+@app.route('/api/process-frame', methods=['OPTIONS'])
+@app.route('/api/get-stats', methods=['OPTIONS'])
+@app.route('/api/reset-counter', methods=['OPTIONS'])
+def handle_options():
+    return jsonify({'status': 'ok'})
 
 # Initialize MediaPipe
 mp_drawing = mp.solutions.drawing_utils
@@ -113,12 +137,27 @@ def home():
     return jsonify({
         'message': 'TrackFit AI Exercise Tracking API',
         'status': 'running',
+        'cors_enabled': True,
+        'allowed_origins': [
+            'https://trackfit-ai-web.web.app',
+            'https://trackfit-ai-web.firebaseapp.com'
+        ],
         'endpoints': [
             '/api/start-exercise',
             '/api/process-frame',
             '/api/get-stats',
-            '/api/reset-counter'
+            '/api/reset-counter',
+            '/test-cors'
         ]
+    })
+
+@app.route('/test-cors')
+def test_cors():
+    """Test CORS endpoint"""
+    return jsonify({
+        'message': 'CORS test successful',
+        'origin': request.headers.get('Origin', 'No origin header'),
+        'cors_working': True
     })
 
 @app.route('/api/start-exercise', methods=['POST'])
